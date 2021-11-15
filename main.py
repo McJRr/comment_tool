@@ -20,12 +20,15 @@ layout = [
             # [sg.OK(), sg.Cancel()],
             [sg.Text('单条链接 输入/粘贴 需要抓取评论的链接 ~',size=(25,2)), sg.InputText()],
 			[sg.Button('退出程序'),sg.Button('结果导出'), sg.Button('开始运行')],
-            [sg.Output(size=(60,15))],          # an output area where all print output will go
+            [sg.Output(size=(80,15))],          # an output area where all print output will go
 		]
 
 # Create the Window
 
 window = sg.Window(title='评论获取工具V0.1 QA@wyh', layout=layout, font="bold 18")
+
+# print('###########欢迎使用本评论获取小工具#################')
+# print('当前支持的平台有微博(https://weibo.com/6724189443/JqR4UuzJC)和今日头条(https://www.toutiao.com/a7029929014202630687)')
 
 # Event Loop to process "events" and get the "values" of the inputs
 while True:
@@ -42,10 +45,10 @@ while True:
                         if info.get('post_id'):
                             valid_list.append(info)
                     print('读取结束开始抓取.....')
-                    comments_1 = []
+                    comments = []
                     for each in valid_list:
                         c = get_comment(each)
-                        comments_1 += c
+                        comments += c
                     print(u'.....抓取结束，点击 结果导出 导出当前抓取数据.......')
             except Exception:
                 traceback.print_exc()
@@ -55,19 +58,16 @@ while True:
         info = (check_validation(values[0]))
         print(info['message'])
         try:
-            comments_2= get_comment(info)
+            comments = get_comment(info)
             print(u'.....抓取结束，点击 结果导出 导出当前抓取数据.......')
         except Exception:
             traceback.print_exc()
     if event == '结果导出':
         try:
-            if comments_1:
-                pf = pd.DataFrame(comments_1)
-            elif comments_2:
-                pf = pd.DataFrame(comments_2)
-            else:
-                print('暂无评论！')
-                continue
+            try:
+                pf = pd.DataFrame(comments)
+            except:
+                print('暂无评论可供导出！')
             order = ['url', 'author_name', 'post_time', 'content', 'like_num']
             columns_map = {'author_name': '作者名', 'post_time': '评论时间', 'content': '内容', 'like_num': '点赞数' }
             pf.rename(columns=columns_map, inplace=True)
