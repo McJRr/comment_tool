@@ -8,3 +8,9 @@ class CommentItem(Item):
 	content = Field()
 	post_time = Field()
 	url = Field()
+
+class DouyinHudongItem(Item):
+	like_num = Field()
+	comment_num = Field()
+	share_num = Field()
+	url = Field()
