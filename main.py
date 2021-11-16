@@ -4,7 +4,7 @@ from typing import ValuesView
 from weakref import WeakKeyDictionary
 import PySimpleGUI as sg
 import traceback
-from comment.utils import check_validation, get_comment
+from comment.utils import check_validation, get_comments
 import pandas as pd
 # 取消warning
 import warnings
@@ -47,8 +47,9 @@ while True:
                     print('读取结束开始抓取.....')
                     comments = []
                     for each in valid_list:
-                        c = get_comment(each)
+                        c = get_comments(each)
                         comments += c
+                    print('本次获取评论%d条..' %len(comments))
                     print(u'.....抓取结束，点击 结果导出 导出当前抓取数据.......')
             except Exception:
                 traceback.print_exc()
@@ -58,7 +59,8 @@ while True:
         info = (check_validation(values[0]))
         print(info['message'])
         try:
-            comments = get_comment(info)
+            comments = get_comments(info)
+            print('本次获取评论%d条..' % len(comments))
             print(u'.....抓取结束，点击 结果导出 导出当前抓取数据.......')
         except Exception:
             traceback.print_exc()
@@ -67,7 +69,7 @@ while True:
             try:
                 pf = pd.DataFrame(comments)
             except:
-                print('暂无评论可供导出！')
+                print('暂无评论可供导出!')
             order = ['url', 'author_name', 'post_time', 'content', 'like_num']
             columns_map = {'author_name': '作者名', 'post_time': '评论时间', 'content': '内容', 'like_num': '点赞数' }
             pf.rename(columns=columns_map, inplace=True)

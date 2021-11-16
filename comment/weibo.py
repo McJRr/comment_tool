@@ -18,8 +18,20 @@ class WeiboComment():
 		'id={post_id}&is_show_bulletin=2&is_mix=0&max_id={max_id}&count=20'
 	l2_comment_api = 'https://weibo.com/ajax/statuses/buildComments?is_reload=1' \
 		'&id={l1_id}&is_show_bulletin=2&is_mix=1&fetch_level=1&max_id={max_id}&count=20'
+
 	headers = {
-		"user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36"
+		'referer': 'https://weibo.com/',
+		'sec-ch-ua': '"Google Chrome";v="95", "Chromium";v="95", ";Not A Brand";v="99"',
+		'sec-ch-ua-mobile': '?0',
+		'sec-ch-ua-platform': '"macOS"',
+		'sec-fetch-dest': 'empty',
+		'sec-fetch-mode': 'cors',
+		'sec-fetch-site': 'same-origin',
+		'traceparent': '00-a9eb2ee4095dd8f62516601a56fd5479-8d24445384f16e97-00',
+		'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36',
+		'x-requested-with': 'XMLHttpRequest',
+		'x-xsrf-token': 'm2gt7Mtq2GTCM5dksQj4E4IU',
+		'Cookie': 'XSRF-TOKEN=4wzAy6kpFT_MVLm7-R8Xxo-Y'
 	}
 
 	comments = []
@@ -32,13 +44,14 @@ class WeiboComment():
 
 	def get_comment(self, max_id=0):
 		try:
-			time.sleep(random.randint(0,3))
 			l1_req = self.l1_comment_api.format(max_id=max_id,post_id=self.post_id)
+			time.sleep(random.randint(0,3))
 			# print('Request %s ...' % l1_req)
 			r1 = self.s.get(l1_req, headers=self.headers)
 			r1 = json.loads(r1.text)
 			d1 = r1['data']
 			if not d1:
+				print('获取评论失败...Break')
 				return 
 			for each in d1:
 				item1 = self.extract_comment(each)
@@ -77,7 +90,6 @@ class WeiboComment():
 		author_name = data['user']['name']
 		id_ = data['id']
 		time_str = data['created_at'].replace('+0800 ', '')
-		# post_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(int()))
 		post_time = dateparser.parse(time_str)
 		like_num = data['like_counts']
 		content = data['text_raw']

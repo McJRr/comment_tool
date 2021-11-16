@@ -33,7 +33,7 @@ def check_validation(url):
 		return {"message": "x.x 该域名%s暂不支持 x.x" %(domain), "url": url}
 		
 
-def get_comment(data: dict):
+def get_comments(data: dict):
 	map_ = {
 		"www.toutiao.com": ToutiaoComment,
 		"weibo.com": WeiboComment
@@ -42,9 +42,8 @@ def get_comment(data: dict):
 		t = map_[data['domain']]
 		t(data['post_id'], data['url']).get_comment()
 		return t.comments
-	
 
 if __name__ == '__main__':
 	#info = (check_validation('https://www.toutiao.com/a7029929014202630687/?log_from=39cf6cf11248b_1636861144204'))
 	info = (check_validation('https://weibo.com/1853098262/KBwjW5gdz'))
-	comments = get_comment(info)
+	comments = get_comments(info)
