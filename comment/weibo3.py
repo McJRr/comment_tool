@@ -10,10 +10,10 @@ from scrapy import Request
 from id_zh import trans_10id
 
 def get_url():
-    with open('./comment/w2.txt', 'r') as f:
+    with open('w2.txt', 'r') as f:
         for line in f.readlines():
             line = line.strip('\n').strip()
-            time.sleep(1)
+            time.sleep(2)
             yield line
 
 class Weibo(scrapy.Spider):
@@ -26,15 +26,15 @@ class Weibo(scrapy.Spider):
     }
 
     def start_requests(self):
-        # url = 'https://weibo.com/1853098262/KBwjW5gdz'
-        for url in get_url():
-            post_id = re.search('/\d+/(\w+)', url)
-            if post_id:
-                post_id = post_id.group(1)
-                post_id = trans_10id(post_id)
-                page = 1
-                r_req = self.r_api.format(post_id=post_id, page=page)
-                yield Request(r_req, headers=self.headers, callback=self.parse_repost, meta={ "url": url, "post_id": post_id, 'page': page})
+        url = 'http://weibo.com/5813211408/L1W66lpyF'
+        # for url in get_url():
+        post_id = re.search('/\d+/(\w+)', url)
+        if post_id:
+            post_id = post_id.group(1)
+            post_id = trans_10id(post_id)
+            page = 1
+            r_req = self.r_api.format(post_id=post_id, page=page)
+            yield Request(r_req, headers=self.headers, callback=self.parse_repost, meta={ "url": url, "post_id": post_id, 'page': page})
 
     def parse_repost(self, response):
         url = response.meta['url']
@@ -42,14 +42,12 @@ class Weibo(scrapy.Spider):
         post_id = response.meta['post_id']
         r = json.loads(response.body)
         d1 = r['data']
-        if not d1:
-            return 
         for each in d1:
             item = self.extract_comment(each)
             item['url'] = url
             yield item
         max_page = r['max_page']
-        if page <= max_page and len(r['data']):
+        if page <= max_page:
             page = page + 1
             r_req = self.r_api.format(post_id=post_id, page=page)
             yield Request(r_req, headers=self.headers, callback=self.parse_repost, meta={ "url": url, "post_id": post_id, 'page': page})
@@ -76,8 +74,11 @@ if __name__ == "__main__":
     import pathlib
     process = CrawlerProcess(settings={
         "DOWNLOAD_DELAY": 2,
+        "DOWNLOADER_MIDDLEWARES": {"proxy.RandomProxy" : 200},
+		"PROXY_MODE": "la",
+        "RETRY_TIMES": 10,
         "FEEDS": {
-            pathlib.Path('weibo_repost_18_01.csv'): {
+            pathlib.Path('weibo_repost_18_02.csv'): {
                 'format': 'csv',
                 'fields': ['like_num', 'author_name', 'content', 'post_time', 'url'],
             },

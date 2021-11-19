@@ -93,9 +93,11 @@ if __name__ == "__main__":
 	from scrapy.crawler import CrawlerProcess
 	import pathlib
 	process = CrawlerProcess(settings={
-		"DOWNLOAD_DELAY": 2,
+		"DOWNLOAD_DELAY": 1,
+		"DOWNLOADER_MIDDLEWARES": {"proxy.RandomProxy" : 200},
+		"PROXY_MODE": "la",
 		"FEEDS": {
-			pathlib.Path('items.csv'): {
+			pathlib.Path('weibo_comment_18_01.csv'): {
 				'format': 'csv',
 				'fields': ['like_num', 'author_name', 'content', 'post_time', 'url'],
 			},
